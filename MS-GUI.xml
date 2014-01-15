@@ -1,0 +1,689 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.0">
+    <TriggerPackage/>
+    <TimerPackage/>
+    <AliasPackage/>
+    <ActionPackage/>
+    <ScriptPackage>
+        <ScriptGroup isActive="yes" isFolder="yes">
+            <name>MS-GUI</name>
+            <packageName>MS-GUI</packageName>
+            <script></script>
+            <eventHandlerList/>
+            <ScriptGroup isActive="yes" isFolder="yes">
+                <name>MS_GUI</name>
+                <packageName>Template</packageName>
+                <script>mudlet = mudlet or {}; mudlet.mapper_script = true</script>
+                <eventHandlerList/>
+                <ScriptGroup isActive="yes" isFolder="yes">
+                    <name>CSSman</name>
+                    <packageName>CSSman</packageName>
+                    <script></script>
+                    <eventHandlerList/>
+                    <Script isActive="yes" isFolder="no">
+                        <name>CSSMan</name>
+                        <packageName></packageName>
+                        <script>-- CSSMan by Vadi. Public domain.
+
+CSSMan = {}
+CSSMan.__index = CSSMan
+
+function CSSMan.new(stylesheet)
+  local obj  = { stylesheet = {} }
+  setmetatable(obj,CSSMan)
+  local trim = string.trim
+
+  assert(type(stylesheet) == &quot;string&quot;, &quot;CSSMan.new: no stylesheet provided. A possible error is that you might have used CSSMan.new, not CSSMan:new&quot;)
+
+  for line in stylesheet:gmatch(&quot;[^\r\n]+&quot;) do
+    local attribute, value = line:match(&quot;^(.-):(.-);$&quot;)
+    if attribute and value then
+      attribute, value = trim(attribute), trim(value)
+      obj.stylesheet[attribute] = value
+    end
+  end
+
+  return obj
+end
+
+function CSSMan:set(key, value)
+  self.stylesheet[key] = value
+end
+
+function CSSMan:get(key)
+  return self.stylesheet[key]
+end
+
+function CSSMan:getCSS(key)
+  local lines, concat = {}, table.concat
+  for k,v in pairs(self.stylesheet) do lines[#lines+1] = concat({k,&quot;: &quot;, v, &quot;;&quot;}) end
+  return concat(lines, &quot;\n&quot;)
+end
+
+function CSSMan:gettable()
+  return self.stylesheet
+end
+
+function CSSMan:settable(tbl)
+  assert(type(tbl) == &quot;table&quot;, &quot;CSSMan:settable: table expected, got &quot;..type(tbl))
+
+  self.stylesheet = tbl
+end</script>
+                        <eventHandlerList/>
+                    </Script>
+                </ScriptGroup>
+                <ScriptGroup isActive="yes" isFolder="yes">
+                    <name>GUI</name>
+                    <packageName></packageName>
+                    <script>GUI = GUI or {}
+</script>
+                    <eventHandlerList/>
+                    <Script isActive="yes" isFolder="no">
+                        <name>Set Borders</name>
+                        <packageName></packageName>
+                        <script>local w,h = getMainWindowSize()
+setBorderLeft(w/8)
+--setBorderTop(h/20)
+setBorderBottom(h/10)
+setBorderRight(w/4)</script>
+                        <eventHandlerList/>
+                    </Script>
+                    <Script isActive="yes" isFolder="no">
+                        <name>Create Background</name>
+                        <packageName></packageName>
+                        <script>ms_path = string.gsub(getMudletHomeDir()..&quot;/MS-GUI&quot;,&quot;\\&quot;,&quot;/&quot;)
+
+GUI.BackgroundCSS = CSSMan.new([[
+  background-color: #C7C7C7;
+]])
+
+GUI.Left = Geyser.Label:new({
+  name = &quot;GUI.Left&quot;,
+  x = 0, y = 0,
+  width = &quot;12.5%&quot;,
+  height = &quot;100%&quot;,
+})
+GUI.Left:setStyleSheet([[border-image : url(]] .. ms_path .. [[/images/bgrmain.png)]]);
+
+GUI.Right = Geyser.Label:new({
+  name = &quot;GUI.Right&quot;,
+  x = &quot;-25%&quot;, y = 0,
+  width = &quot;25%&quot;,
+  height = &quot;100%&quot;,
+})
+GUI.Right:setStyleSheet(GUI.BackgroundCSS:getCSS())
+
+--GUI.Top = Geyser.Label:new({
+--  name = &quot;GUI.Top&quot;,
+--  x = &quot;12.5%&quot;, y = 0,
+--  width = &quot;62.5%&quot;,
+--  height = &quot;5%&quot;,
+--})
+--GUI.Top:setStyleSheet(GUI.BackgroundCSS:getCSS())
+
+GUI.Bottom = Geyser.Label:new({
+  name = &quot;GUI.Bottom&quot;,
+  x = &quot;12.5%&quot;, y = &quot;93%&quot;,
+  width = &quot;62.5%&quot;,
+  height = &quot;7%&quot;,
+})
+GUI.Bottom:setStyleSheet(GUI.BackgroundCSS:getCSS())</script>
+                        <eventHandlerList/>
+                    </Script>
+                    <Script isActive="yes" isFolder="no">
+                        <name>Boxes</name>
+                        <packageName></packageName>
+                        <script>-- This is the general template structure for the GUI --------------------------------
+
+ms_path = string.gsub(getMudletHomeDir()..&quot;/MS-GUI&quot;,&quot;\\&quot;,&quot;/&quot;)
+
+GUI.BoxCSS = CSSMan.new([[
+  background-color: rgba(0,0,0,0);
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 10px;
+  border-color: white;
+  margin: 5px;
+]])
+
+-- Inventory Box -----------------------------------------------------------------------
+
+GUI.Box2 = Geyser.Label:new({
+  name = &quot;GUI.Box2&quot;,
+  x = 0, y = &quot;50%&quot;,
+  width = &quot;100%&quot;,
+  height = &quot;40%&quot;,
+},GUI.Right)
+GUI.Box2:setStyleSheet(GUI.BoxCSS:getCSS())
+
+
+--GUI.Box5 = Geyser.Label:new({
+--  name = &quot;GUI.Box5&quot;,
+--  x = &quot;0%&quot;, y = &quot;25%&quot;,
+--  width = &quot;50%&quot;,
+--  height = &quot;50%&quot;,
+--},GUI.Left)
+--GUI.Box5:setStyleSheet(GUI.BoxCSS:getCSS())
+--GUI.Box5:echo(&quot;&lt;center&gt;GUI.Box5&quot;)
+
+--GUI.Box6 = Geyser.Label:new({
+--  name = &quot;GUI.Box6&quot;,
+--  x = &quot;50%&quot;, y = &quot;25%&quot;,
+--  width = &quot;50%&quot;,
+--  height = &quot;50%&quot;,
+--},GUI.Left)
+--GUI.Box6:setStyleSheet(GUI.BoxCSS:getCSS())
+--GUI.Box6:echo(&quot;&lt;center&gt;GUI.Box6&quot;)
+
+-- General Info Box ------------------------------------------------------------------
+
+GUI.Box7 = Geyser.Label:new({
+  name = &quot;GUI.Box7&quot;,
+  x = &quot;0%&quot;, y = &quot;75%&quot;,
+  width = &quot;100%&quot;,
+  height = &quot;25%&quot;,
+},GUI.Left)
+GUI.Box7:setStyleSheet(GUI.BoxCSS:getCSS())
+
+-- Labels for the General Info Stuff --------------------------------------------------
+
+GUI.InfoBoxCSS = CSSMan.new([[
+  background-color: rgba(0,0,0,0);
+  border-style: transparent;
+  border-width: 0px;
+  margin: 5px;
+]])
+
+GUI.InfoLabel = Geyser.Label:new({
+	name = &quot;GUI.InfoLabel&quot;,
+	x = &quot;2%&quot;, y = &quot;2%&quot;,
+	width = &quot;96%&quot;,
+	height = &quot;75%&quot;
+},GUI.Box7)
+GUI.InfoLabel:setStyleSheet(GUI.InfoBoxCSS:getCSS())
+
+-- Money Info Box  ------------------------------------------------------------------
+
+GUI.MoneyBoxCSS = CSSMan.new([[
+  background-color: rgba(0,0,0,0);
+  border-style: transparent;
+  border-width: 0px;
+  margin: 5px;
+]])
+
+
+GUI.MoneyBox = Geyser.HBox:new({
+	name = &quot;GUI.MoneyBox&quot;,
+	x = &quot;8%&quot;, y = &quot;77%&quot;,
+	width = &quot;96%&quot;,
+	height = &quot;10%&quot;
+},GUI.Box7)
+
+GUI.MoneyLabel = Geyser.Label:new({
+	name = &quot;GUI.MoneyLabel&quot;,
+},GUI.MoneyBox)
+GUI.MoneyLabel:setStyleSheet([[border-image : url(]] .. ms_path .. [[/images/profit.png)]]);
+
+GUI.Money = Geyser.Label:new({
+  name = &quot;GUI.Money&quot;,
+  h_stretch_factor = 6,
+},GUI.MoneyBox )
+GUI.Money:setStyleSheet(GUI.MoneyBoxCSS:getCSS())
+
+-- Map Box ---------------------------------------------------------------------------
+
+GUI.Box1 = Geyser.Label:new({
+  name = &quot;GUI.Box1&quot;,
+  x = 0, y = 0,
+  width = &quot;100%&quot;,
+  height = &quot;50%&quot;,
+},GUI.Right)
+GUI.BoxCSS:set( &quot;border-image&quot;, &quot;url(&quot;..ms_path..&quot;/images/worldmap.png)&quot;)
+GUI.Box1:setStyleSheet(GUI.BoxCSS:getCSS())
+
+
+
+-- Logo Box ---------------------------------------------------------------------------
+
+GUI.Box4 = Geyser.Label:new({
+  name = &quot;GUI.Box4&quot;,
+  x = &quot;0%&quot;, y = &quot;0%&quot;,
+  width = &quot;100%&quot;,
+  height = &quot;25%&quot;,
+},GUI.Left)
+GUI.BoxCSS:set( &quot;border-image&quot;, &quot;url(&quot;..ms_path..&quot;/images/logo.png)&quot;)
+GUI.Box4:setStyleSheet(GUI.BoxCSS:getCSS())
+--GUI.Box4:setStyleSheet([[ border-image: url(]]..ms_path..[[/images/logo.png); ]])
+--GUI.Box4:setBackgroundImage(ms_path..&quot;/images/logo.png&quot;)
+
+
+</script>
+                        <eventHandlerList/>
+                    </Script>
+                    <Script isActive="yes" isFolder="no">
+                        <name>Gauges</name>
+                        <packageName></packageName>
+                        <script>ms_path = string.gsub(getMudletHomeDir()..&quot;/MS-GUI&quot;,&quot;\\&quot;,&quot;/&quot;)
+
+
+GUI.Footer = Geyser.HBox:new({
+  name = &quot;GUI.Footer&quot;,
+  x = 0, y = 0,
+  width = &quot;100%&quot;,
+  height = &quot;100%&quot;,
+},GUI.Bottom)
+
+
+GUI.FooterIcons = Geyser.VBox:new({
+	name = &quot;GUI.FooterIcons&quot;
+}, GUI.Footer)
+
+GUI.FooterGauges = Geyser.VBox:new({
+	name = &quot;GUI.FooterGauges&quot;,
+    h_stretch_factor = 22,
+},GUI.Footer)
+
+
+GUI.GaugeBackCSS = CSSMan.new([[
+	background-color: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #8a2f2f, stop: .25 #581111, stop: .53 #250707, stop: .84 #7e1919, stop: 1 #b17575,);
+    border-width: 2px;
+    border-color: black;
+    border-style: solid;
+    border-radius: 12;
+    padding: 3px;
+	font: bold 12px;
+	color: black;
+]])
+
+GUI.GaugeFrontCSS = CSSMan.new([[ 
+	background-color: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1,stop:.0 #487200, stop:.25 #CEF2C4, stop:.53 #3BE10F, stop:.84 #29B571,  stop:1 #006048);
+    border: 1px solid rgba(208,208,208,100);    
+    border-radius: 14;
+    padding: 3px;
+	font: bold 12px;
+	color: black;
+ ]])
+----
+
+GUI.LifeLabel = Geyser.Label:new({
+	name = &quot;GUI.LifeLabel&quot;,
+    v_stretch_factor = 2
+},GUI.FooterIcons)
+GUI.LifeLabel:setStyleSheet([[border-image : url(]] .. ms_path .. [[/images/anatomy_1.png)]]);
+
+GUI.Mana = Geyser.Gauge:new({
+  name = &quot;GUI.Mana&quot;,
+  x = 0, y = 0,
+  width = &quot;100%&quot;,
+  height = &quot;33%&quot;,
+},GUI.FooterGauges)
+GUI.Mana.back:setStyleSheet(GUI.GaugeBackCSS:getCSS())
+GUI.Mana.front:setStyleSheet(GUI.GaugeFrontCSS:getCSS())
+GUI.Mana:setValue(100,100)
+
+
+GUI.Health = Geyser.Gauge:new({
+  name = &quot;GUI.Health&quot;,
+  x = 0, y = &quot;33%&quot;,
+  width = &quot;100%&quot;,
+  height = &quot;33%&quot;,
+},GUI.FooterGauges)
+GUI.Health.back:setStyleSheet(GUI.GaugeBackCSS:getCSS())
+GUI.Health.front:setStyleSheet(GUI.GaugeFrontCSS:getCSS())
+GUI.Health:setValue(100,100)
+
+GUI.OpponentLabel = Geyser.Label:new({
+	name = &quot;GUI.OpponentLabel&quot;,
+},GUI.FooterIcons)
+GUI.OpponentLabel:setStyleSheet([[border-image : url(]] .. ms_path .. [[/images/spinning-sword.png)]]);
+
+GUI.Opponent = Geyser.Gauge:new({
+  name = &quot;GUI.Opponent&quot;,
+  x = 0, y = &quot;66%&quot;,
+  width = &quot;100%&quot;,
+  height = &quot;33%&quot;,
+},GUI.FooterGauges)
+GUI.Opponent.back:setStyleSheet(GUI.GaugeBackCSS:getCSS())
+GUI.Opponent.front:setStyleSheet(GUI.GaugeFrontCSS:getCSS())
+GUI.Opponent:setValue(100,100)
+
+
+
+
+-- Containers for Stuffed etc gauges -----------------------------------------
+
+GUI.Box3 = Geyser.HBox:new({
+  name = &quot;GUI.Box3&quot;,
+  x = 0, y = &quot;90%&quot;,
+  width = &quot;100%&quot;,
+  height = &quot;10%&quot;,
+},GUI.Right)
+
+GUI.Box31 = Geyser.VBox:new({
+  name = &quot;GUI.Box31&quot;,
+},GUI.Box3)
+
+GUI.Box32 = Geyser.VBox:new({ -- here are the actual gauges
+  name = &quot;GUI.Box32&quot;,
+  h_stretch_factor = 9,
+},GUI.Box3)
+
+GUI.GaugeBlueFrontCSS = CSSMan.new([[
+	background-color: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #12655d, stop: 0.1 #b9d8d5, stop: 0.49 #177f75, stop: 0.5 #177f75, stop: 1 #09322e);
+    border-top: 0px black solid;
+    border-left: 2px black solid;
+    border-bottom: 1px black solid;
+    border-radius: 9;
+    padding: 3px;
+	margin: 1px;
+]])
+
+GUI.GaugeBlueBackCSS = CSSMan.new([[
+	background-color: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #7f7f7f, stop: 0.1 #000000, stop: 0.49 #000000, stop: 0.5 #191919, stop: 1 #02545f);
+    border-width: 2px;
+    border-color: black;
+    border-style: solid;
+    border-radius: 9;
+    padding: 3px;
+    border-top: 2px #cccccc solid;
+  margin: 1px;
+]])
+
+-- Intoxication Gauge ----------------------------------------------------------------
+
+GUI.IntoxLabel = Geyser.Label:new({
+	name = &quot;GUI.IntoxLabel&quot;,
+},GUI.Box31)
+GUI.IntoxLabel:setStyleSheet([[border-image : url(]] .. ms_path .. [[/images/intoxicated.png)]]);
+
+GUI.Intox = Geyser.Gauge:new({
+  name = &quot;GUI.Intox&quot;,
+  x = 10, y = &quot;1%&quot;,
+  width = &quot;80%&quot;,
+  height = &quot;23%&quot;,
+},GUI.Box32 )
+GUI.Intox.back:setStyleSheet(GUI.GaugeBlueBackCSS:getCSS())
+GUI.Intox.front:setStyleSheet(GUI.GaugeBlueFrontCSS:getCSS())
+
+-- Stuffed Gauge ----------------------------------------------------------------
+
+GUI.StuffedLabel = Geyser.Label:new({
+	name = &quot;GUI.StuffedLabel&quot;,
+},GUI.Box31)
+GUI.StuffedLabel:setStyleSheet([[border-image : url(]] .. ms_path .. [[/images/stuffed.png)]]);
+
+GUI.Stuffed = Geyser.Gauge:new({
+  name = &quot;GUI.Stuffed&quot;,
+  x = 10, y = &quot;25%&quot;,
+  width = &quot;80%&quot;,
+  height = &quot;23%&quot;,
+},GUI.Box32 )
+GUI.Stuffed.back:setStyleSheet(GUI.GaugeBlueBackCSS:getCSS())
+GUI.Stuffed.front:setStyleSheet(GUI.GaugeBlueFrontCSS:getCSS())
+
+-- Soaked Gauge ----------------------------------------------------------------
+
+GUI.SoakedLabel = Geyser.Label:new({
+	name = &quot;GUI.SoakedLabel&quot;,
+},GUI.Box31)
+GUI.SoakedLabel:setStyleSheet([[border-image : url(]] .. ms_path .. [[/images/soaked.png)]]);
+
+GUI.Soaked = Geyser.Gauge:new({
+  name = &quot;GUI.Soaked&quot;,
+  x = 10, y = &quot;49%&quot;,
+  width = &quot;80%&quot;,
+  height = &quot;23%&quot;,
+},GUI.Box32 )
+GUI.Soaked.back:setStyleSheet(GUI.GaugeBlueBackCSS:getCSS())
+GUI.Soaked.front:setStyleSheet(GUI.GaugeBlueFrontCSS:getCSS())
+
+-- Burden Gauge ----------------------------------------------------------------
+
+GUI.BurdeLabel = Geyser.Label:new({
+	name = &quot;GUI.BurdeLabel&quot;,
+},GUI.Box31)
+GUI.BurdeLabel:setStyleSheet([[border-image : url(]] .. ms_path .. [[/images/burden.png)]]);
+
+GUI.Burden = Geyser.Gauge:new({
+  name = &quot;GUI.Burden&quot;,
+  x = 10, y = &quot;73%&quot;,
+  width = &quot;80%&quot;,
+  height = &quot;23%&quot;,
+},GUI.Box32 )
+GUI.Burden.back:setStyleSheet(GUI.GaugeBlueBackCSS:getCSS())
+GUI.Burden.front:setStyleSheet(GUI.GaugeBlueFrontCSS:getCSS())
+
+
+
+
+</script>
+                        <eventHandlerList/>
+                    </Script>
+                    <Script isActive="yes" isFolder="no">
+                        <name>my_vitals_function</name>
+                        <packageName></packageName>
+                        <script>function my_vitals_function()
+
+current = 0
+--display(gmcp)
+
+
+	if gmcp.Char.Vitals.HP ~= nil then
+		current = tonumber(gmcp.Char.Vitals.HP)
+		GUI.Health:setValue(current, 100)
+		if current &gt; 66 then
+			GUI.GaugeFrontCSS:set(&quot;background-color&quot;,&quot;QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1,stop:.0 #487200, stop:.25 #CEF2C4, stop:.53 #3BE10F, stop:.84 #29B571,  stop:1 #006048)&quot;)
+		elseif current &gt; 33 then
+			GUI.GaugeFrontCSS:set(&quot;background-color&quot;,&quot;QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f1f34e, stop: 0.1 #eef022, stop: 0.49 #a5db67, stop: 0.5 #a5db67, stop: 1 #5e5e19)&quot;)
+		else
+			GUI.GaugeFrontCSS:set(&quot;background-color&quot;,&quot;QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #4a0003, stop: 0.1 #fdccce, stop: 0.49 #f7000b, stop: 0.5 #f7000b, stop: 1 #620004)&quot;)
+		end
+		GUI.Health.front:setStyleSheet(GUI.GaugeFrontCSS:getCSS())
+	end	
+
+	if gmcp.Char.Vitals.SP ~= nil then
+		current = tonumber(gmcp.Char.Vitals.SP)
+		GUI.Mana:setValue(current, 100)
+		if current &gt; 66 then
+			GUI.GaugeFrontCSS:set(&quot;background-color&quot;,&quot;QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1,stop:.0 #487200, stop:.25 #CEF2C4, stop:.53 #3BE10F, stop:.84 #29B571,  stop:1 #006048)&quot;)
+		elseif current &gt; 33 then
+			GUI.GaugeFrontCSS:set(&quot;background-color&quot;,&quot;QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f1f34e, stop: 0.1 #eef022, stop: 0.49 #a5db67, stop: 0.5 #a5db67, stop: 1 #5e5e19)&quot;)
+		else
+			GUI.GaugeFrontCSS:set(&quot;background-color&quot;,&quot;QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #4a0003, stop: 0.1 #fdccce, stop: 0.49 #f7000b, stop: 0.5 #f7000b, stop: 1 #620004)&quot;)
+		end
+		GUI.Mana.front:setStyleSheet(GUI.GaugeFrontCSS:getCSS())
+	end	
+
+
+	if gmcp.Char.Vitals.Intox ~= nil then
+		current = tonumber(gmcp.Char.Vitals.Intox)
+		GUI.Intox:setValue(current, 100)
+	end	
+
+	if gmcp.Char.Vitals.Stuffed ~= nil then
+		current = tonumber(gmcp.Char.Vitals.Stuffed)
+		GUI.Stuffed:setValue(current, 100)
+	end	
+
+	if gmcp.Char.Vitals.Soaked ~= nil then
+		current = tonumber(gmcp.Char.Vitals.Soaked)
+		GUI.Soaked:setValue(current, 100)
+	end	
+
+	if gmcp.Char.Vitals.Burden ~= nil then
+		current = tonumber(gmcp.Char.Vitals.Burden)
+		GUI.Burden:setValue(current, 100)
+	end	
+
+	if gmcp.Char.Vitals.Money ~= nil then
+		current = tonumber(gmcp.Char.Vitals.Money)
+		local out = [[&lt;p align=&quot;left&quot; style=&quot;font-size: 11px; font-family: 'Monospace'; font-weight:bold&quot;&gt;]]..&quot;&lt;span style=\&quot;color:white\&quot;&gt;   &quot; .. current .. &quot; coins&lt;/span&gt;&quot;..[[&lt;/p&gt;]]
+		GUI.Money:echo(out)
+	end	
+
+
+	if gmcp.Char.Opponent.HP ~= nil then
+		current = tonumber(gmcp.Char.Opponent.HP)
+		GUI.Opponent:setValue(current, 100)
+		if current &gt; 66 then
+			GUI.GaugeFrontCSS:set(&quot;background-color&quot;,&quot;QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1,stop:.0 #487200, stop:.25 #CEF2C4, stop:.53 #3BE10F, stop:.84 #29B571,  stop:1 #006048)&quot;)
+			GUI.GaugeFrontCSS:set(&quot;color&quot;,&quot;black&quot;)
+			GUI.GaugeBackCSS:set(&quot;color&quot;,&quot;black&quot;)
+			GUI.Opponent.back:cecho(gmcp.Char.Opponent.short)	
+			GUI.Opponent.front:cecho(gmcp.Char.Opponent.short)	
+		elseif current &gt; 33 then
+			GUI.GaugeFrontCSS:set(&quot;background-color&quot;,&quot;QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #f1f34e, stop: 0.1 #eef022, stop: 0.49 #a5db67, stop: 0.5 #a5db67, stop: 1 #5e5e19)&quot;)
+			GUI.Opponent.back:cecho(gmcp.Char.Opponent.short)	
+			GUI.Opponent.front:cecho(gmcp.Char.Opponent.short)	
+		else
+			GUI.GaugeFrontCSS:set(&quot;background-color&quot;,&quot;QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #4a0003, stop: 0.1 #fdccce, stop: 0.49 #f7000b, stop: 0.5 #f7000b, stop: 1 #620004)&quot;)
+			GUI.Opponent.back:cecho(gmcp.Char.Opponent.short)	
+			GUI.Opponent.front:cecho(gmcp.Char.Opponent.short)
+			GUI.GaugeFrontCSS:set(&quot;color&quot;,&quot;white&quot;)
+			GUI.GaugeBackCSS:set(&quot;color&quot;,&quot;white&quot;)
+
+		end
+		GUI.Opponent.front:setStyleSheet(GUI.GaugeFrontCSS:getCSS())
+	elseif gmcp.Char.Opponent.HP == 0 then
+		GUI.Opponent:setValue(0, 100)		
+		GUI.Opponent.back:cecho(&quot;&quot;)	
+		GUI.Opponent.front:cecho(&quot;&quot;)
+	end	
+
+end
+</script>
+                        <eventHandlerList>
+                            <string>gmcp.Char.Vitals</string>
+                            <string>gmcp.Char.Opponent</string>
+                        </eventHandlerList>
+                    </Script>
+                    <Script isActive="yes" isFolder="no">
+                        <name>InvGUI</name>
+                        <packageName></packageName>
+                        <script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external Scripts --
+-------------------------------------------------
+
+GUI.Inv = Geyser.MiniConsole:new({
+	name = &quot;InventoryConsole&quot;,
+  x = &quot;3%&quot;, y = &quot;3%&quot;,
+  width = &quot;94%&quot;,
+  height = &quot;94%&quot;,
+},GUI.Box2)
+setMiniConsoleFontSize(&quot;InventoryConsole&quot;, 10);
+setBackgroundColor(&quot;InventoryConsole&quot;,0,0,0,255)
+
+
+
+</script>
+                        <eventHandlerList/>
+                    </Script>
+                    <Script isActive="yes" isFolder="no">
+                        <name>inventory_functions</name>
+                        <packageName></packageName>
+                        <script>-------------------------------------------------
+--         Put your Lua functions here.        --
+--                                             --
+-- Note that you can also use external Scripts --
+-------------------------------------------------
+
+invetory_items = {}
+
+function clean_up()
+	clearUserWindow(&quot;InventoryConsole&quot;)
+	invetory_items = {}
+end
+
+function table.contains(table, element)
+  for key, value in pairs(table) do
+    if key == element then
+      return true
+    end
+  end
+  return false
+end
+
+function CarriedString(table)
+
+str = &quot;&quot;
+
+	for ckey,cvalue in pairs(table) do
+		if cvalue == 1 then
+			str = str..ckey..&quot;\n&quot;
+		else
+			str = str..ckey..&quot; (&quot;..cvalue..&quot;)\n&quot;
+		end
+	end
+return str
+
+end
+
+function inventory_functions()
+WornItems = &quot;&quot;
+CarriedITems = {}
+ShownCarriedItems = &quot;&quot;
+i = 0;
+
+--display(gmcp)
+	clearUserWindow(&quot;InventoryConsole&quot;)
+
+	if gmcp.Char.Inv.action == &quot;add&quot; then
+		invetory_items[gmcp.Char.Inv.id] = {tostring(gmcp.Char.Inv.short),gmcp.Char.Inv.used}
+	elseif gmcp.Char.Inv.action == &quot;del&quot; then
+		invetory_items[gmcp.Char.Inv.id] = nil
+	end
+	
+	for key,value in pairs(invetory_items) do 
+		if value[2] == &quot;1&quot; then
+			WornItems = WornItems..value[1]..&quot;\n&quot;
+		else -- here it gets tricky because we need to group identical elements.
+			if not table.contains(CarriedITems,value[1]) then
+				CarriedITems[value[1]] = 1
+			else
+				CarriedITems[value[1]] = CarriedITems[value[1]] + 1
+			end
+		end
+		i = i+1
+	end 
+
+local out = &quot;&lt;yellow\&gt;&quot;..WornItems..&quot;&lt;OrangeRed\&gt;&quot;..CarriedString(CarriedITems)
+
+--local out = [[&lt;p align=&quot;center&quot; style=&quot;font-size: 11px; font-family: 'Monospace'&quot;&gt;]] .. &quot;&lt;span style=\&quot;color:OrangeRed\&quot;&gt;&quot; .. table.concat(mobs, &quot;&lt;br&gt;&quot;) .. &quot;&lt;br /&gt;&lt;/span&gt;&lt;span style=\&quot;color:gold\&quot;&gt;&quot; .. table.concat(important, &quot;&lt;br /&gt;&quot;) .. &quot;&lt;br /&gt;&lt;/span&gt;&lt;span style=\&quot;color:PapayaWhip\&quot;&gt;&quot; .. table.concat(other or others, &quot;&lt;br /&gt;&quot;) .. [[&lt;/span&gt;&lt;/p&gt;&lt;br&gt;]]
+
+
+   	GUI.Inv:cecho(out)
+end
+
+
+registerAnonymousEventHandler(&quot;sysConnectionEvent&quot;,&quot;clean_up&quot;)
+registerAnonymousEventHandler(&quot;sysDisconnectionEvent&quot;,&quot;clean_up&quot;)
+</script>
+                        <eventHandlerList>
+                            <string>gmcp.Char.Inv</string>
+                        </eventHandlerList>
+                    </Script>
+                    <Script isActive="yes" isFolder="no">
+                        <name>info_function</name>
+                        <packageName></packageName>
+                        <script>
+function info_function()
+
+	if gmcp.Char.Info.name ~= nil then
+		local out = [[&lt;p align=&quot;center&quot; style=&quot;font-size: 11px; font-family: 'Monospace'; font-weight:bold&quot;&gt;]] .. &quot;&lt;span style=\&quot;color:white\&quot;&gt; Name : &quot; .. gmcp.Char.Info.name ..&quot;&lt;br/&gt; Guild :&quot; ..gmcp.Char.Info.guild..&quot; &lt;br/&gt; Level :&quot; ..gmcp.Char.Info.level..&quot; &lt;br/&gt;&lt;/span&gt;&quot;..[[&lt;/span&gt;&lt;/p&gt;&lt;br&gt;]]
+		GUI.InfoLabel:echo(out)
+	end
+
+end</script>
+                        <eventHandlerList>
+                            <string>gmcp.Char.Info</string>
+                        </eventHandlerList>
+                    </Script>
+                </ScriptGroup>
+            </ScriptGroup>
+        </ScriptGroup>
+    </ScriptPackage>
+    <KeyPackage/>
+</MudletPackage>

@@ -1,0 +1,1 @@
+This is the GUI for Midnight Sun (midnightsun2.org:3328) for the Mudlet Client
